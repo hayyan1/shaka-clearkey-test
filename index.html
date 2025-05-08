@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Shaka Player with ClearKey DRM</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.7/shaka-player.compiled.js"></script>
+  </head>
+  <body>
+    <video id="video" width="640" controls autoplay></video>
+
+    <script>
+      async function initApp() {
+        if (shaka.Player.isBrowserSupported()) {
+          const video = document.getElementById('video');
+          const player = new shaka.Player(video);
+
+          // Listen for error events.
+          player.addEventListener('error', onErrorEvent);
+
+          // إعداد ClearKey DRM
+          const drmConfig = {
+            clearKeys: {
+              // format: 'keyId': 'key'
+              '3d04975236a44f62857d181597705ee6': '362133e9cb13189ad4fe095ced216f60'
+            }
+          };
+
+          player.configure({
+            drm: drmConfig
+          });
+
+          const manifestUri = 'https://ssc-news-live-enc.edgenextcdn.net/out/v1/ef466f43623c4bbaa3f905b566ec35ea/index.mpd';
+
+          try {
+            await player.load(manifestUri);
+            console.log('تم تحميل الفيديو بنجاح!');
+          } catch (error) {
+            onError(error);
+          }
+
+        } else {
+          console.error('المتصفح لا يدعم Shaka Player');
+        }
+      }
+
+      function onErrorEvent(event) {
+        onError(event.detail);
+      }
+
+      function onError(error) {
+        console.error('خطأ من Shaka Player:', error);
+      }
+
+      document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+  </body>
+</html>
